@@ -2,21 +2,25 @@ let transactions = [];
 let balance = 0;
 let editingIndex = -1;
 let weeklyExpenses = 0;
+let weeklyIncome = 0;
 
 function saveToLocalStorage() {
     localStorage.setItem('transactions', JSON.stringify(transactions));
     localStorage.setItem('balance', balance);
     localStorage.setItem('weeklyExpenses', weeklyExpenses);
+    localStorage.setItem('weeklyIncome', weeklyIncome);
 }
 
 function loadFromLocalStorage() {
     const storedTransactions = localStorage.getItem('transactions');
     const storedBalance = localStorage.getItem('balance');
     const storedWeeklyExpenses = localStorage.getItem('weeklyExpenses');
+    const storedWeeklyIncome = localStorage.getItem('weeklyIncome');
     if (storedTransactions) {
         transactions = JSON.parse(storedTransactions);
         balance = parseFloat(storedBalance) || 0;
         weeklyExpenses = parseFloat(storedWeeklyExpenses) || 0;
+        weeklyIncome = parseFloat(storedWeeklyIncome) || 0;
         document.getElementById('balance-amount').textContent = balance.toFixed(2);
         renderTransactions();
         renderWeeklyOverview();
@@ -43,6 +47,8 @@ function addTransaction() {
         updateBalance(transaction.amount);
         if (type === 'expense') {
             updateWeeklyExpenses(Math.abs(transaction.amount));
+        } else if (type === 'income') {
+            updateWeeklyIncome(amount);
         }
         renderTransactions();
         renderWeeklyOverview();
@@ -67,6 +73,18 @@ function updateWeeklyExpenses(amount) {
         weeklyExpenses += amount;
     } else {
         weeklyExpenses = amount;
+    }
+}
+
+function updateWeeklyIncome(amount) {
+    const now = new Date();
+    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+    const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+
+    if (transactions.some(t => t.type === 'income' && t.date >= startOfWeek && t.date <= endOfWeek)) {
+        weeklyIncome += amount;
+    } else {
+        weeklyIncome = amount;
     }
 }
 
@@ -127,9 +145,13 @@ function updateTransaction() {
             updateBalance(transactions[editingIndex].amount - oldAmount);
             if (oldType === 'expense') {
                 updateWeeklyExpenses(-Math.abs(oldAmount));
+            } else if (oldType === 'income') {
+                updateWeeklyIncome(-oldAmount);
             }
             if (type === 'expense') {
                 updateWeeklyExpenses(Math.abs(amount));
+            } else if (type === 'income') {
+                updateWeeklyIncome(amount);
             }
             renderTransactions();
             renderWeeklyOverview();
@@ -153,17 +175,25 @@ function clearForm() {
 
 function renderWeeklyOverview() {
     const weeklyExpensesDiv = document.getElementById('weekly-expenses');
+    const weeklyIncomeDiv = document.getElementById('weekly-income');
     weeklyExpensesDiv.innerHTML = '';
+    weeklyIncomeDiv.innerHTML = '';
 
-    const weeklyOverview = document.createElement('p');
-    weeklyOverview.textContent = `Total Expenses this Week: $${weeklyExpenses.toFixed(2)}`;
-    weeklyExpensesDiv.appendChild(weeklyOverview);
+    const weeklyExpensesOverview = document.createElement('p');
+    weeklyExpensesOverview.textContent = `Total Expenses this Week: $${weeklyExpenses.toFixed(2)}`;
+    weeklyExpensesDiv.appendChild(weeklyExpensesOverview);
+
+    const weeklyIncomeOverview = document.createElement('p');
+    weeklyIncomeOverview.textContent = `Total Income this Week: $${weeklyIncome.toFixed(2)}`;
+    weeklyIncomeDiv.appendChild(weeklyIncomeOverview);
 }
 
 function deleteTransaction(index) {
     const transaction = transactions[index];
     if (transaction.type === 'expense') {
         updateWeeklyExpenses(-Math.abs(transaction.amount));
+    } else if (transaction.type === 'income') {
+        updateWeeklyIncome(-transaction.amount);
     }
     updateBalance(-transaction.amount);
     transactions.splice(index, 1);
@@ -174,6 +204,7 @@ function deleteTransaction(index) {
 
 function resetWeeklyExpenses() {
     weeklyExpenses = 0;
+    weeklyIncome = 0;
     renderWeeklyOverview();
     saveToLocalStorage();
 }

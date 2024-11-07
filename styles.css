@@ -142,10 +142,18 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
     margin-bottom: 20px;
 }
 
-#weekly-expenses {
+#weekly-expenses, #weekly-income {
     text-align: center;
     font-size: 18px;
     font-weight: 500;
+}
+
+#weekly-expenses p {
+    color: #e74c3c;
+}
+
+#weekly-income p {
+    color: #2ecc71;
 }
 
 #weekly-overview button {
