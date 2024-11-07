@@ -172,6 +172,12 @@ function deleteTransaction(index) {
     saveToLocalStorage();
 }
 
+function resetWeeklyExpenses() {
+    weeklyExpenses = 0;
+    renderWeeklyOverview();
+    saveToLocalStorage();
+}
+
 // Initial render
 loadFromLocalStorage();
 renderTransactions();
