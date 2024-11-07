@@ -19,6 +19,16 @@
             <button onclick="addTransaction()">Add Transaction</button>
         </div>
         <div id="transactions"></div>
+        <div id="edit-form" style="display:none;">
+            <input type="text" id="edit-description" placeholder="Edit Description">
+            <input type="number" id="edit-amount" placeholder="Edit Amount">
+            <select id="edit-type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+            <button onclick="updateTransaction()">Update Transaction</button>
+            <button onclick="cancelEdit()">Cancel</button>
+        </div>
         <div id="balance">
             <h2>Current Balance: $<span id="balance-amount">0</span></h2>
         </div>
