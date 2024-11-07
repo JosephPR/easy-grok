@@ -1,18 +1,22 @@
 let transactions = [];
 let balance = 0;
 let editingIndex = -1;
+let weeklyExpenses = 0;
 
 function saveToLocalStorage() {
     localStorage.setItem('transactions', JSON.stringify(transactions));
     localStorage.setItem('balance', balance);
+    localStorage.setItem('weeklyExpenses', weeklyExpenses);
 }
 
 function loadFromLocalStorage() {
     const storedTransactions = localStorage.getItem('transactions');
     const storedBalance = localStorage.getItem('balance');
+    const storedWeeklyExpenses = localStorage.getItem('weeklyExpenses');
     if (storedTransactions) {
         transactions = JSON.parse(storedTransactions);
         balance = parseFloat(storedBalance) || 0;
+        weeklyExpenses = parseFloat(storedWeeklyExpenses) || 0;
         document.getElementById('balance-amount').textContent = balance.toFixed(2);
         renderTransactions();
         renderWeeklyOverview();
@@ -37,6 +41,9 @@ function addTransaction() {
 
         transactions.push(transaction);
         updateBalance(transaction.amount);
+        if (type === 'expense') {
+            updateWeeklyExpenses(Math.abs(transaction.amount));
+        }
         renderTransactions();
         renderWeeklyOverview();
         clearForm();
@@ -49,6 +56,18 @@ function addTransaction() {
 function updateBalance(amount) {
     balance += amount;
     document.getElementById('balance-amount').textContent = balance.toFixed(2);
+}
+
+function updateWeeklyExpenses(amount) {
+    const now = new Date();
+    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+    const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+
+    if (transactions.some(t => t.type === 'expense' && t.date >= startOfWeek && t.date <= endOfWeek)) {
+        weeklyExpenses += amount;
+    } else {
+        weeklyExpenses = amount;
+    }
 }
 
 function renderTransactions() {
@@ -86,6 +105,7 @@ function updateTransaction() {
 
         if (description && !isNaN(amount)) {
             const oldAmount = transactions[editingIndex].amount;
+            const oldType = transactions[editingIndex].type;
             transactions[editingIndex] = {
                 description: description,
                 amount: type === 'income' ? amount : -amount,
@@ -94,6 +114,12 @@ function updateTransaction() {
                 date: transactions[editingIndex].date
             };
             updateBalance(transactions[editingIndex].amount - oldAmount);
+            if (oldType === 'expense') {
+                updateWeeklyExpenses(-Math.abs(oldAmount));
+            }
+            if (type === 'expense') {
+                updateWeeklyExpenses(Math.abs(amount));
+            }
             renderTransactions();
             renderWeeklyOverview();
             cancelEdit();
@@ -117,16 +143,6 @@ function clearForm() {
 function renderWeeklyOverview() {
     const weeklyExpensesDiv = document.getElementById('weekly-expenses');
     weeklyExpensesDiv.innerHTML = '';
-
-    const now = new Date();
-    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-    const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
-
-    const weeklyExpenses = transactions.filter(t => t.type === 'expense' && t.date >= startOfWeek && t.date <= endOfWeek)
-        .reduce((acc, t) => {
-            acc += Math.abs(t.amount);
-            return acc;
-        }, 0);
 
     const weeklyOverview = document.createElement('p');
     weeklyOverview.textContent = `Total Expenses this Week: $${weeklyExpenses.toFixed(2)}`;
