@@ -7,18 +7,21 @@ function addTransaction() {
     const amount = parseFloat(document.getElementById('amount').value);
     const type = document.getElementById('type').value;
     const category = document.getElementById('category').value;
+    const date = new Date();
 
     if (description && !isNaN(amount)) {
         const transaction = {
             description: description,
             amount: type === 'income' ? amount : -amount,
             type: type,
-            category: category
+            category: category,
+            date: date
         };
 
         transactions.push(transaction);
         updateBalance(transaction.amount);
         renderTransactions();
+        renderWeeklyOverview();
         clearForm();
     } else {
         alert('Please enter a valid description and amount.');
@@ -69,10 +72,12 @@ function updateTransaction() {
                 description: description,
                 amount: type === 'income' ? amount : -amount,
                 type: type,
-                category: category
+                category: category,
+                date: transactions[editingIndex].date
             };
             updateBalance(transactions[editingIndex].amount - oldAmount);
             renderTransactions();
+            renderWeeklyOverview();
             cancelEdit();
         } else {
             alert('Please enter a valid description and amount.');
@@ -90,5 +95,25 @@ function clearForm() {
     document.getElementById('amount').value = '';
 }
 
+function renderWeeklyOverview() {
+    const weeklyExpensesDiv = document.getElementById('weekly-expenses');
+    weeklyExpensesDiv.innerHTML = '';
+
+    const now = new Date();
+    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+    const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+
+    const weeklyExpenses = transactions.filter(t => t.type === 'expense' && t.date >= startOfWeek && t.date <= endOfWeek)
+        .reduce((acc, t) => {
+            acc += Math.abs(t.amount);
+            return acc;
+        }, 0);
+
+    const weeklyOverview = document.createElement('p');
+    weeklyOverview.textContent = `Total Expenses this Week: $${weeklyExpenses.toFixed(2)}`;
+    weeklyExpensesDiv.appendChild(weeklyOverview);
+}
+
 // Initial render
 renderTransactions();
+renderWeeklyOverview();
