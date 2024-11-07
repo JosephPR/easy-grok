@@ -82,6 +82,11 @@ function renderTransactions() {
         editButton.className = 'edit-button';
         editButton.onclick = () => editTransaction(index);
         div.appendChild(editButton);
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.className = 'delete-button';
+        deleteButton.onclick = () => deleteTransaction(index);
+        div.appendChild(deleteButton);
         transactionsDiv.appendChild(div);
     });
 }
@@ -147,6 +152,18 @@ function renderWeeklyOverview() {
     const weeklyOverview = document.createElement('p');
     weeklyOverview.textContent = `Total Expenses this Week: $${weeklyExpenses.toFixed(2)}`;
     weeklyExpensesDiv.appendChild(weeklyOverview);
+}
+
+function deleteTransaction(index) {
+    const transaction = transactions[index];
+    if (transaction.type === 'expense') {
+        updateWeeklyExpenses(-Math.abs(transaction.amount));
+    }
+    updateBalance(-transaction.amount);
+    transactions.splice(index, 1);
+    renderTransactions();
+    renderWeeklyOverview();
+    saveToLocalStorage();
 }
 
 // Initial render

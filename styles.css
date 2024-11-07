@@ -84,7 +84,7 @@ h1 {
     font-weight: 500;
 }
 
-.edit-button {
+.edit-button, .delete-button {
     background-color: #3498db;
     color: white;
     border: none;
@@ -94,8 +94,16 @@ h1 {
     transition: background-color 0.3s ease;
 }
 
-.edit-button:hover {
+.edit-button:hover, .delete-button:hover {
     background-color: #2980b9;
+}
+
+.delete-button {
+    background-color: #e74c3c;
+}
+
+.delete-button:hover {
+    background-color: #c0392b;
 }
 
 /* Additional modern touches */
