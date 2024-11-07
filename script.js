@@ -30,25 +30,23 @@ function loadFromLocalStorage() {
 function addTransaction() {
     const description = document.getElementById('description').value;
     const amount = parseFloat(document.getElementById('amount').value);
-    const type = document.getElementById('type').value;
     const category = document.getElementById('category').value;
     const date = new Date();
 
     if (description && !isNaN(amount)) {
         const transaction = {
             description: description,
-            amount: type === 'income' ? amount : -amount,
-            type: type,
+            amount: category === 'income' ? amount : -amount,
             category: category,
             date: date
         };
 
         transactions.push(transaction);
         updateBalance(transaction.amount);
-        if (type === 'expense') {
-            updateWeeklyExpenses(Math.abs(transaction.amount));
-        } else if (type === 'income') {
+        if (category === 'income') {
             updateWeeklyIncome(amount);
+        } else {
+            updateWeeklyExpenses(Math.abs(transaction.amount));
         }
         renderTransactions();
         renderWeeklyOverview();
@@ -69,7 +67,7 @@ function updateWeeklyExpenses(amount) {
     const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
     const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
 
-    if (transactions.some(t => t.type === 'expense' && t.date >= startOfWeek && t.date <= endOfWeek)) {
+    if (transactions.some(t => t.category !== 'income' && t.date >= startOfWeek && t.date <= endOfWeek)) {
         weeklyExpenses += amount;
     } else {
         weeklyExpenses = amount;
@@ -81,7 +79,7 @@ function updateWeeklyIncome(amount) {
     const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
     const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
 
-    if (transactions.some(t => t.type === 'income' && t.date >= startOfWeek && t.date <= endOfWeek)) {
+    if (transactions.some(t => t.category === 'income' && t.date >= startOfWeek && t.date <= endOfWeek)) {
         weeklyIncome += amount;
     } else {
         weeklyIncome = amount;
@@ -93,7 +91,7 @@ function renderTransactions() {
     transactionsDiv.innerHTML = '';
     transactions.forEach((transaction, index) => {
         const div = document.createElement('div');
-        div.className = `transaction ${transaction.type}`;
+        div.className = `transaction ${transaction.category === 'income' ? 'income' : 'expense'}`;
         const transactionInfo = document.createElement('div');
         transactionInfo.className = 'transaction-info';
         transactionInfo.textContent = `${transaction.description}: $${transaction.amount.toFixed(2)} - ${transaction.category}`;
@@ -119,7 +117,6 @@ function editTransaction(index) {
     const transaction = transactions[index];
     document.getElementById('edit-description').value = transaction.description;
     document.getElementById('edit-amount').value = Math.abs(transaction.amount);
-    document.getElementById('edit-type').value = transaction.type;
     document.getElementById('edit-category').value = transaction.category;
     document.getElementById('edit-form').style.display = 'block';
     editingIndex = index;
@@ -129,29 +126,21 @@ function updateTransaction() {
     if (editingIndex !== -1) {
         const description = document.getElementById('edit-description').value;
         const amount = parseFloat(document.getElementById('edit-amount').value);
-        const type = document.getElementById('edit-type').value;
         const category = document.getElementById('edit-category').value;
 
         if (description && !isNaN(amount)) {
             const oldAmount = transactions[editingIndex].amount;
-            const oldType = transactions[editingIndex].type;
             transactions[editingIndex] = {
                 description: description,
-                amount: type === 'income' ? amount : -amount,
-                type: type,
+                amount: category === 'income' ? amount : -amount,
                 category: category,
                 date: transactions[editingIndex].date
             };
             updateBalance(transactions[editingIndex].amount - oldAmount);
-            if (oldType === 'expense') {
-                updateWeeklyExpenses(-Math.abs(oldAmount));
-            } else if (oldType === 'income') {
-                updateWeeklyIncome(-oldAmount);
-            }
-            if (type === 'expense') {
-                updateWeeklyExpenses(Math.abs(amount));
-            } else if (type === 'income') {
-                updateWeeklyIncome(amount);
+            if (transactions[editingIndex].category === 'income') {
+                updateWeeklyIncome(amount - oldAmount);
+            } else {
+                updateWeeklyExpenses(Math.abs(amount) - Math.abs(oldAmount));
             }
             renderTransactions();
             renderWeeklyOverview();
@@ -190,10 +179,10 @@ function renderWeeklyOverview() {
 
 function deleteTransaction(index) {
     const transaction = transactions[index];
-    if (transaction.type === 'expense') {
-        updateWeeklyExpenses(-Math.abs(transaction.amount));
-    } else if (transaction.type === 'income') {
+    if (transaction.category === 'income') {
         updateWeeklyIncome(-transaction.amount);
+    } else {
+        updateWeeklyExpenses(-Math.abs(transaction.amount));
     }
     updateBalance(-transaction.amount);
     transactions.splice(index, 1);
