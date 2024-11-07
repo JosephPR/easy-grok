@@ -69,6 +69,15 @@ h1 {
     align-items: center;
 }
 
+.transaction .transaction-info {
+    flex-grow: 1;
+}
+
+.transaction .buttons {
+    display: flex;
+    gap: 10px;
+}
+
 .income {
     color: #2ecc71;
 }

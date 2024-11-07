@@ -76,17 +76,23 @@ function renderTransactions() {
     transactions.forEach((transaction, index) => {
         const div = document.createElement('div');
         div.className = `transaction ${transaction.type}`;
-        div.textContent = `${transaction.description}: $${transaction.amount.toFixed(2)} - ${transaction.category}`;
+        const transactionInfo = document.createElement('div');
+        transactionInfo.className = 'transaction-info';
+        transactionInfo.textContent = `${transaction.description}: $${transaction.amount.toFixed(2)} - ${transaction.category}`;
+        div.appendChild(transactionInfo);
+        const buttons = document.createElement('div');
+        buttons.className = 'buttons';
         const editButton = document.createElement('button');
         editButton.textContent = 'Edit';
         editButton.className = 'edit-button';
         editButton.onclick = () => editTransaction(index);
-        div.appendChild(editButton);
+        buttons.appendChild(editButton);
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
         deleteButton.className = 'delete-button';
         deleteButton.onclick = () => deleteTransaction(index);
-        div.appendChild(deleteButton);
+        buttons.appendChild(deleteButton);
+        div.appendChild(buttons);
         transactionsDiv.appendChild(div);
     });
 }
