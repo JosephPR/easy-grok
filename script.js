@@ -6,12 +6,14 @@ function addTransaction() {
     const description = document.getElementById('description').value;
     const amount = parseFloat(document.getElementById('amount').value);
     const type = document.getElementById('type').value;
+    const category = document.getElementById('category').value;
 
     if (description && !isNaN(amount)) {
         const transaction = {
             description: description,
             amount: type === 'income' ? amount : -amount,
-            type: type
+            type: type,
+            category: category
         };
 
         transactions.push(transaction);
@@ -34,7 +36,7 @@ function renderTransactions() {
     transactions.forEach((transaction, index) => {
         const div = document.createElement('div');
         div.className = `transaction ${transaction.type}`;
-        div.textContent = `${transaction.description}: $${transaction.amount.toFixed(2)}`;
+        div.textContent = `${transaction.description}: $${transaction.amount.toFixed(2)} - ${transaction.category}`;
         const editButton = document.createElement('button');
         editButton.textContent = 'Edit';
         editButton.className = 'edit-button';
@@ -49,6 +51,7 @@ function editTransaction(index) {
     document.getElementById('edit-description').value = transaction.description;
     document.getElementById('edit-amount').value = Math.abs(transaction.amount);
     document.getElementById('edit-type').value = transaction.type;
+    document.getElementById('edit-category').value = transaction.category;
     document.getElementById('edit-form').style.display = 'block';
     editingIndex = index;
 }
@@ -58,13 +61,15 @@ function updateTransaction() {
         const description = document.getElementById('edit-description').value;
         const amount = parseFloat(document.getElementById('edit-amount').value);
         const type = document.getElementById('edit-type').value;
+        const category = document.getElementById('edit-category').value;
 
         if (description && !isNaN(amount)) {
             const oldAmount = transactions[editingIndex].amount;
             transactions[editingIndex] = {
                 description: description,
                 amount: type === 'income' ? amount : -amount,
-                type: type
+                type: type,
+                category: category
             };
             updateBalance(transactions[editingIndex].amount - oldAmount);
             renderTransactions();

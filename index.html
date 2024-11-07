@@ -16,6 +16,13 @@
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
             </select>
+            <select id="category">
+                <option value="food">Food</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="bills">Bills</option>
+                <option value="shopping">Shopping</option>
+                <option value="other">Other</option>
+            </select>
             <button onclick="addTransaction()">Add Transaction</button>
         </div>
         <div id="transactions"></div>
@@ -25,6 +32,13 @@
             <select id="edit-type">
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
+            </select>
+            <select id="edit-category">
+                <option value="food">Food</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="bills">Bills</option>
+                <option value="shopping">Shopping</option>
+                <option value="other">Other</option>
             </select>
             <button onclick="updateTransaction()">Update Transaction</button>
             <button onclick="cancelEdit()">Cancel</button>
