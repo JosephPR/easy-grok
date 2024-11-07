@@ -2,6 +2,23 @@ let transactions = [];
 let balance = 0;
 let editingIndex = -1;
 
+function saveToLocalStorage() {
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    localStorage.setItem('balance', balance);
+}
+
+function loadFromLocalStorage() {
+    const storedTransactions = localStorage.getItem('transactions');
+    const storedBalance = localStorage.getItem('balance');
+    if (storedTransactions) {
+        transactions = JSON.parse(storedTransactions);
+        balance = parseFloat(storedBalance) || 0;
+        document.getElementById('balance-amount').textContent = balance.toFixed(2);
+        renderTransactions();
+        renderWeeklyOverview();
+    }
+}
+
 function addTransaction() {
     const description = document.getElementById('description').value;
     const amount = parseFloat(document.getElementById('amount').value);
@@ -23,6 +40,7 @@ function addTransaction() {
         renderTransactions();
         renderWeeklyOverview();
         clearForm();
+        saveToLocalStorage();
     } else {
         alert('Please enter a valid description and amount.');
     }
@@ -79,6 +97,7 @@ function updateTransaction() {
             renderTransactions();
             renderWeeklyOverview();
             cancelEdit();
+            saveToLocalStorage();
         } else {
             alert('Please enter a valid description and amount.');
         }
@@ -115,5 +134,6 @@ function renderWeeklyOverview() {
 }
 
 // Initial render
+loadFromLocalStorage();
 renderTransactions();
 renderWeeklyOverview();
