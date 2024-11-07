@@ -37,6 +37,7 @@ function renderTransactions() {
         div.textContent = `${transaction.description}: $${transaction.amount.toFixed(2)}`;
         const editButton = document.createElement('button');
         editButton.textContent = 'Edit';
+        editButton.className = 'edit-button';
         editButton.onclick = () => editTransaction(index);
         div.appendChild(editButton);
         transactionsDiv.appendChild(div);
@@ -59,12 +60,13 @@ function updateTransaction() {
         const type = document.getElementById('edit-type').value;
 
         if (description && !isNaN(amount)) {
+            const oldAmount = transactions[editingIndex].amount;
             transactions[editingIndex] = {
                 description: description,
                 amount: type === 'income' ? amount : -amount,
                 type: type
             };
-            updateBalance(transactions[editingIndex].amount - transactions[editingIndex].amount);
+            updateBalance(transactions[editingIndex].amount - oldAmount);
             renderTransactions();
             cancelEdit();
         } else {
